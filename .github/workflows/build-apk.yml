@@ -14,29 +14,55 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
+      - name: Dosyalari klasorlere yerlestir
+        run: |
+          mkdir -p assets resources android-res/drawable
+          for f in logo.png logo-intro.png icon-512.png icon-192.png apple-touch-icon.png favicon.png; do
+            if [ -f "$f" ]; then mv "$f" assets/; fi
+          done
+          for f in icon-only.png icon-foreground.png icon-background.png splash.png splash-dark.png; do
+            if [ -f "$f" ]; then mv "$f" resources/; fi
+          done
+          if [ -f ic_notif_large.png ]; then mv ic_notif_large.png android-res/drawable/; fi
+          for d in mdpi hdpi xhdpi xxhdpi xxxhdpi; do
+            mkdir -p android-res/drawable-$d
+            if [ -f "ic_stat_icon_$d.png" ]; then mv "ic_stat_icon_$d.png" android-res/drawable-$d/ic_stat_icon.png; fi
+          done
+
       - uses: actions/setup-node@v4
         with:
           node-version: 20
+
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: 21
+
       - run: npm install
+
       - run: |
           mkdir -p www
           cp -r index.html manifest.webmanifest assets www/
+
       - run: npx cap add android
+
       - run: npx capacitor-assets generate --android --assetPath resources
+
       - run: |
           cp -r android-res/* android/app/src/main/res/
           M=android/app/src/main/AndroidManifest.xml
           grep -q POST_NOTIFICATIONS $M || sed -i 's#<application#<uses-permission android:name="android.permission.POST_NOTIFICATIONS" />\n    <application#' $M
+
       - run: npx cap sync android
+
       - working-directory: android
         run: |
           chmod +x gradlew
           ./gradlew assembleDebug
+
       - run: cp android/app/build/outputs/apk/debug/app-debug.apk Atama-Takip.apk
+
       - uses: actions/upload-artifact@v4
         with:
           name: Atama-Takip-APK
