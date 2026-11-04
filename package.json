@@ -1,0 +1,17 @@
+{
+  "name": "tibbi-sekreter-atama-takip",
+  "version": "1.0.0",
+  "private": true,
+  "author": "Furkan Özkan",
+  "license": "UNLICENSED",
+  "description": "Tıbbi Sekreter Atama Takip - © 2026 Furkan Özkan. Tüm hakları saklıdır.",
+  "dependencies": {
+    "@capacitor/android": "^7.0.0",
+    "@capacitor/cli": "^7.0.0",
+    "@capacitor/core": "^7.0.0",
+    "@capacitor/local-notifications": "^7.0.0"
+  },
+  "devDependencies": {
+    "@capacitor/assets": "^3.0.5"
+  }
+}
