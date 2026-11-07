@@ -1,0 +1,13 @@
+{
+  "appId": "com.furkanozkan.atamatakip",
+  "appName": "Atama Takip",
+  "webDir": "www",
+  "backgroundColor": "#0B0F19",
+  "android": { "allowMixedContent": false },
+  "plugins": {
+    "LocalNotifications": {
+      "smallIcon": "ic_stat_icon",
+      "iconColor": "#8FDBFF"
+    }
+  }
+}
