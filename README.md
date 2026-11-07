@@ -9,3 +9,5 @@ Sağlık Bakanlığı sözleşmeli Sağlık Teknikeri (Tıbbi Sekreter) KPSS Ön
 - Android APK: GitHub > Actions > "APK Derle" > Run workflow > Artifacts > `Atama-Takip-APK`.
 
 © 2026 Furkan Özkan. Tüm hakları saklıdır. Bkz. [LICENSE](LICENSE).
+
+- **Arayüz:** Tailwind CSS (CDN), Lucide ikonları (CDN) ve Inter yazı tipi kullanır; gövde sabit, içerik alanı kendi içinde kaydırılır (APK hissi). Üretim sürümünde ilk açılışta internet gerekir; çevrimdışı kullanım için Tailwind/Lucide/Inter dosyalarını projeye yerel olarak ekleyin.
