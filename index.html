@@ -149,6 +149,18 @@ input#sc:focus,input#rd:focus,#wiz input#wsc:focus,input#wq:focus,select:focus{b
 .pb-safe{padding-bottom:max(env(safe-area-inset-bottom,0px),1.25rem)}
 @keyframes floaty{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
 </style>
+<style id="polish-css">
+/* Tipografi: uzun açıklama metinleri 1 tık küçük, satır arası ferah */
+.w,p.s,.card.w,#alm .st{font-size:11.5px;line-height:1.625}
+p.s{font-size:12.5px}
+#lic .bx{font-size:12.5px;line-height:1.625}
+/* Köşe yuvarlaklığı: kart, input, select, buton, bildirim kutuları tek ölçü (20px) */
+.card,#lic .bx,#updb,#wres .wk,[class*="rounded-3xl"]{border-radius:20px!important}
+button,select,input#sc,input#rd,#wiz input#wsc,input#wq,#simc .go,#wiz .go,.cta{border-radius:20px}
+.mz button{width:38px;min-width:38px;height:38px;min-height:38px;padding:0;border-radius:50%}
+/* Harita noktaları: hafif neon parlama */
+#mg .dot{filter:url(#dglow)}
+</style>
 </head><body>
 <div id="intro" role="img" aria-label="Tıbbi Sekreter Atama Takip"><div class="lg-wrap"><span class="ring"></span><img src="assets/logo-intro.png" alt="Logo"></div><h2>TIBBİ SEKRETER<br>ATAMA TAKİP</h2><div class="bar"><i></i></div><div class="cp">© 2026 Furkan Özkan · Tüm hakları saklıdır</div></div>
 <script>(function(){var i=document.getElementById("intro");
@@ -254,7 +266,7 @@ setTimeout(function(){if(!window.__end||!window.__b||!document.querySelector("#p
 <div id="v-harita" class="view">
 <div class="card"><div class="row" id="per"></div><div class="row" style="margin-top:8px"><button id="play">▶ Yıl yıl oynat</button><button id="m1" class="on">Taban puan</button><button id="m2">Kontenjan</button><button id="m3">Puanım</button></div>
 <div id="info" class="w" style="margin-top:6px"></div></div>
-<div class="card"><div class="mbar"><span class="w">Haritayı kaydırın · il için dokunun</span><span class="mz"><button id="zo" type="button" aria-label="Uzaklaştır">−</button><button id="zi" type="button" aria-label="Yakınlaştır">+</button></span></div><div id="mapw"><div id="mapin"><img id="mapimg" src="assets/harita.png" alt="" draggable="false"><svg id="map" viewBox="-70 -110 2011 981" role="img" aria-label="Türkiye il haritası"><g id="mg"></g><g id="mp"></g></svg></div></div><div class="lg"></div><div class="lgl"><span id="l0"></span><span id="l1"></span></div><div class="w">Gri nokta: o dönemde ilde tıbbi sekreter yerleşmesi/kontenjanı yok. Renkli noktalar il etiketlerinin üstünde yer alır; seçtiğiniz il kırmızı konum işaretiyle gösterilir.</div>
+<div class="card"><div class="mbar"><span class="w">Haritayı kaydırın · il için dokunun</span><span class="mz"><button id="zo" type="button" aria-label="Uzaklaştır">−</button><button id="zi" type="button" aria-label="Yakınlaştır">+</button></span></div><div id="mapw"><div id="mapin"><img id="mapimg" src="assets/harita.png" alt="" draggable="false"><svg id="map" viewBox="-70 -110 2011 981" role="img" aria-label="Türkiye il haritası"><defs><filter id="dglow" x="-150%" y="-150%" width="400%" height="400%" color-interpolation-filters="sRGB"><feGaussianBlur in="SourceGraphic" stdDeviation="8" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter><filter id="pglow" x="-100%" y="-100%" width="300%" height="300%" color-interpolation-filters="sRGB"><feGaussianBlur in="SourceGraphic" stdDeviation="3.5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs><g id="mg"></g><g id="mp"></g></svg></div></div><div class="lg"></div><div class="lgl"><span id="l0"></span><span id="l1"></span></div><div class="w">Gri nokta: o dönemde ilde tıbbi sekreter yerleşmesi/kontenjanı yok. Renkli noktalar il etiketlerinin üstünde yer alır; seçtiğiniz il kırmızı konum işaretiyle gösterilir.</div>
 <select id="sel"></select></div>
 <div class="card" id="det"><span class="w">Bir ile dokunun.</span></div>
 </div>
@@ -284,7 +296,7 @@ function sizeMap(){const w=$("mapw").clientWidth||Math.max(280,window.innerWidth
 function pinSvg(i){const p=i&&MP[i];if(!p)return"";const k=VB.w/mapW,s=34*k/45,nm=trName(i),th=24*k,tw=nm.length*7.6*k+22*k;
  const tx=Math.min(Math.max(p[0]-tw/2,VB.x+6),VB.x+VB.w-tw-6),ty=p[1]-45*s-th-8*k;
  return `<ellipse class="pls" cx="${p[0]}" cy="${p[1]}" rx="${11*k}" ry="${4.5*k}" fill="#ef4444"/>`+
- `<g transform="translate(${p[0]} ${p[1]}) scale(${s})"><g class="pinb"><path d="M0 0C-5-11-15-18-15-30a15 15 0 1 1 30 0C15-18 5-11 0 0Z" fill="#ef4444" stroke="#fff" stroke-width="2.4" stroke-linejoin="round"/><circle cy="-30" r="6" fill="#fff"/></g></g>`+
+ `<g transform="translate(${p[0]} ${p[1]}) scale(${s})" filter="url(#pglow)"><g class="pinb"><path d="M0 0C-5-11-15-18-15-30a15 15 0 1 1 30 0C15-18 5-11 0 0Z" fill="#ef4444" stroke="#fff" stroke-width="2.4" stroke-linejoin="round"/><circle cy="-30" r="6" fill="#fff"/></g></g>`+
  `<rect x="${tx}" y="${ty}" width="${tw}" height="${th}" rx="${th/2}" fill="rgba(11,15,25,.92)" stroke="#ef4444" stroke-width="${1.5*k}"/>`+
  `<text x="${tx+tw/2}" y="${ty+th/2}" text-anchor="middle" dominant-baseline="central" font-size="${13*k}" font-weight="600" fill="#fff" font-family="Inter,system-ui,sans-serif">${nm}</text>`}
 function centerMap(i){const p=MP[i],w=$("mapw");if(!p||!w)return;const x=(p[0]-VB.x)/VB.w*mapW;try{w.scrollTo({left:Math.max(0,x-w.clientWidth/2),behavior:"smooth"})}catch(e){w.scrollLeft=Math.max(0,x-w.clientWidth/2)}}
