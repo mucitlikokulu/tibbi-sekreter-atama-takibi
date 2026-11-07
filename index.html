@@ -96,6 +96,20 @@ input#rd{font:inherit;color:var(--tx);background:var(--card);border:1px solid va
 <script src="https://cdn.tailwindcss.com/3.4.17"></script>
 <script>window.tailwind&&(tailwind.config={corePlugins:{preflight:false},theme:{extend:{fontFamily:{sans:["Inter","system-ui","-apple-system","Segoe UI","Roboto","sans-serif"]}}}})</script>
 <script src="https://unpkg.com/lucide@0.469.0/dist/umd/lucide.min.js"></script>
+<style id="map-css">
+#mapw{overflow-x:auto;overflow-y:hidden;-webkit-overflow-scrolling:touch;touch-action:pan-x pan-y;border-radius:14px;scrollbar-width:thin}
+#map{display:block;max-width:none;height:auto}
+.mbar{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:6px}
+.mz{display:flex;gap:6px}.mz button{width:34px;height:34px;padding:0;font-size:18px;line-height:1;display:flex;align-items:center;justify-content:center}
+#mg .hit{fill:transparent;cursor:pointer}
+#mg .dot{pointer-events:none;stroke-width:2.5}#mg .dot.sel{stroke-width:4}
+#mp{pointer-events:none}
+@keyframes pinDrop{0%{transform:translateY(-30px);opacity:0}55%{transform:translateY(4px);opacity:1}100%{transform:none}}
+@keyframes pinPulse{0%{transform:scale(.4);opacity:.75}100%{transform:scale(3);opacity:0}}
+.pinb{animation:pinDrop .5s cubic-bezier(.3,1.4,.5,1) both}
+.pls{transform-box:fill-box;transform-origin:center;animation:pinPulse 1.7s ease-out infinite}
+@media(prefers-reduced-motion:reduce){.pinb,.pls{animation:none}}
+</style>
 <style id="prem-css">
 /* ===== Premium APK teması ===== */
 *,::before,::after{box-sizing:border-box;border-width:0;border-style:solid;border-color:rgba(255,255,255,.1);-webkit-tap-highlight-color:transparent}
@@ -239,7 +253,7 @@ setTimeout(function(){if(!window.__end||!window.__b||!document.querySelector("#p
 <div id="v-harita" class="view">
 <div class="card"><div class="row" id="per"></div><div class="row" style="margin-top:8px"><button id="play">▶ Yıl yıl oynat</button><button id="m1" class="on">Taban puan</button><button id="m2">Kontenjan</button><button id="m3">Puanım</button></div>
 <div id="info" class="w" style="margin-top:6px"></div></div>
-<div class="card"><svg id="map" viewBox="0 0 880 330"></svg><div class="lg"></div><div class="lgl"><span id="l0"></span><span id="l1"></span></div><div class="w">Gri nokta: o dönemde ilde tıbbi sekreter yerleşmesi/kontenjanı yok. Konumlar yaklaşık il merkezlerine göre çizilmiştir.</div>
+<div class="card"><div class="mbar"><span class="w">Haritayı kaydırın · il için dokunun</span><span class="mz"><button id="zo" type="button" aria-label="Uzaklaştır">−</button><button id="zi" type="button" aria-label="Yakınlaştır">+</button></span></div><div id="mapw"><svg id="map" viewBox="-70 -110 2011 981" role="img" aria-label="Türkiye il haritası"><image href="assets/harita.webp" x="0" y="0" width="1871" height="841"/><g id="mg"></g><g id="mp"></g></svg></div><div class="lg"></div><div class="lgl"><span id="l0"></span><span id="l1"></span></div><div class="w">Gri nokta: o dönemde ilde tıbbi sekreter yerleşmesi/kontenjanı yok. Renkli noktalar il etiketlerinin üstünde yer alır; seçtiğiniz il kırmızı konum işaretiyle gösterilir.</div>
 <select id="sel"></select></div>
 <div class="card" id="det"><span class="w">Bir ile dokunun.</span></div>
 </div>
@@ -262,15 +276,29 @@ let per=P.length-1,met=1,cur=null,tm=null;const $=i=>document.getElementById(i);
 const f=n=>n==null?"–":n.toLocaleString("tr-TR",{maximumFractionDigits:2});
 const val=(il,p)=>{const e=D[il].d[p];if(!e)return null;return met==1?(e.mn==null?null:e.mn):e.k||null};
 function rng(){const v=Object.keys(D).map(i=>val(i,P[per])).filter(x=>x!=null);return v.length?[Math.min(...v),Math.max(...v)]:[0,1]}
-function draw(){const [a,b]=rng();$("l0").textContent=f(a);$("l1").textContent=f(b);
+const MP={"KIRKLARELİ":[219,50],"EDİRNE":[125,160],"TEKİRDAĞ":[203,127],"İSTANBUL":[315,126],"KOCAELİ":[404,158],"SAKARYA":[460,215],"DÜZCE":[544,157],"BOLU":[580,202],"YALOVA":[367,207],"ÇANAKKALE":[110,278],"BURSA":[319,262],"BALIKESİR":[225,319],"BİLECİK":[429,269],"ESKİŞEHİR":[518,323],"KÜTAHYA":[371,359],"MANİSA":[221,423],"İZMİR":[148,490],"UŞAK":[344,470],"AFYONKARAHİSAR":[463,465],"AYDIN":[206,556],"DENİZLİ":[330,593],"MUĞLA":[262,654],"BURDUR":[430,607],"ISPARTA":[503,541],"ANTALYA":[508,662],"KONYA":[659,527],"KARAMAN":[747,637],"MERSİN":[799,700],"ANKARA":[670,286],"KARABÜK":[669,132],"KASTAMONU":[779,104],"ÇANKIRI":[761,188],"ÇORUM":[870,224],"SİNOP":[900,69],"SAMSUN":[1010,127],"AMASYA":[967,186],"TOKAT":[1035,242],"ORDU":[1135,167],"GİRESUN":[1232,168],"TRABZON":[1354,163],"RİZE":[1450,127],"ARTVİN":[1558,79],"GÜMÜŞHANE":[1316,205],"BAYBURT":[1403,230],"ERZURUM":[1524,260],"KARS":[1674,173],"IĞDIR":[1776,243],"AĞRI":[1681,281],"ERZİNCAN":[1322,301],"SİVAS":[1119,322],"YOZGAT":[910,321],"KIRIKKALE":[790,288],"KIRŞEHİR":[820,370],"NEVŞEHİR":[885,438],"KAYSERİ":[997,455],"AKSARAY":[796,488],"NİĞDE":[881,541],"ADANA":[954,587],"OSMANİYE":[1040,626],"HATAY":[1115,708],"GAZİANTEP":[1138,647],"KİLİS":[1036,737],"KAHRAMANMARAŞ":[1100,532],"ADIYAMAN":[1240,547],"MALATYA":[1212,477],"ELAZIĞ":[1339,438],"TUNCELİ":[1328,370],"BİNGÖL":[1465,370],"MUŞ":[1553,370],"BİTLİS":[1613,440],"VAN":[1740,422],"HAKKARİ":[1790,542],"ŞIRNAK":[1649,560],"SİİRT":[1617,507],"BATMAN":[1541,455],"DİYARBAKIR":[1417,497],"MARDİN":[1494,590],"ŞANLIURFA":[1306,623],"ARDAHAN":[1648,142],"BARTIN":[645,107],"ZONGULDAK":[594,132]};
+const VB={x:-70,y:-110,w:2011,h:981},ZS=[1,1.5,2.2];let mz=0,mapW=880,pinKey="";
+const trName=n=>String(n).toLocaleLowerCase("tr-TR").replace(/(^|[\s(\/.\-])([a-zçğıöşü])/g,(m,a,c)=>a+c.toLocaleUpperCase("tr-TR"));
+function sizeMap(){const w=$("mapw").clientWidth||Math.max(280,window.innerWidth-40);mapW=Math.round(Math.max(w,880)*ZS[mz]);const sv=$("map");sv.style.width=mapW+"px";sv.style.height=Math.round(mapW*VB.h/VB.w)+"px"}
+function pinSvg(i){const p=i&&MP[i];if(!p)return"";const k=VB.w/mapW,s=34*k/45,nm=trName(i),th=24*k,tw=nm.length*7.6*k+22*k;
+ const tx=Math.min(Math.max(p[0]-tw/2,VB.x+6),VB.x+VB.w-tw-6),ty=p[1]-45*s-th-8*k;
+ return `<ellipse class="pls" cx="${p[0]}" cy="${p[1]}" rx="${11*k}" ry="${4.5*k}" fill="#ef4444"/>`+
+ `<g transform="translate(${p[0]} ${p[1]}) scale(${s})"><g class="pinb"><path d="M0 0C-5-11-15-18-15-30a15 15 0 1 1 30 0C15-18 5-11 0 0Z" fill="#ef4444" stroke="#fff" stroke-width="2.4" stroke-linejoin="round"/><circle cy="-30" r="6" fill="#fff"/></g></g>`+
+ `<rect x="${tx}" y="${ty}" width="${tw}" height="${th}" rx="${th/2}" fill="rgba(11,15,25,.92)" stroke="#ef4444" stroke-width="${1.5*k}"/>`+
+ `<text x="${tx+tw/2}" y="${ty+th/2}" text-anchor="middle" dominant-baseline="central" font-size="${13*k}" font-weight="600" fill="#fff" font-family="Inter,system-ui,sans-serif">${nm}</text>`}
+function centerMap(i){const p=MP[i],w=$("mapw");if(!p||!w)return;const x=(p[0]-VB.x)/VB.w*mapW;try{w.scrollTo({left:Math.max(0,x-w.clientWidth/2),behavior:"smooth"})}catch(e){w.scrollLeft=Math.max(0,x-w.clientWidth/2)}}
+function draw(){const [a,b]=rng();$("l0").textContent=f(a);$("l1").textContent=f(b);sizeMap();
  $("info").textContent="Dönem: KPSS "+P[per]+" – "+Object.keys(D).filter(i=>val(i,P[per])!=null).length+" ilde veri";
- $("map").innerHTML=Object.keys(D).map(i=>{const v=val(i,P[per]);let c="#9aa3ae";if(v!=null){const t=b>a?(v-a)/(b-a):.5;c=`hsl(${150-150*Math.pow(t,met==1?1:.5)},65%,48%)`}
- const d=D[i];return `<circle class="dot${i==cur?" sel":""}" data-i="${i}" cx="${d.x+20}" cy="${d.y+16}" r="11" fill="${c}"><title>${i}: ${f(v)}</title></circle>`}).join("")+
- Object.keys(D).filter(i=>i==cur||["İSTANBUL","ANKARA","İZMİR"].includes(i)).map(i=>`<text x="${D[i].x+20}" y="${D[i].y+36}" font-size="13" text-anchor="middle" fill="currentColor">${i}</text>`).join("");
- document.querySelectorAll(".dot").forEach(e=>e.onclick=()=>pick(e.dataset.i));
+ $("mg").innerHTML=Object.keys(D).map(i=>{const p=MP[i];if(!p)return"";const v=val(i,P[per]);let c="#9aa3ae";if(v!=null){const t=b>a?(v-a)/(b-a):.5;c=`hsl(${150-150*Math.pow(t,met==1?1:.5)},65%,48%)`}
+  return `<rect class="hit" data-i="${i}" x="${p[0]-56}" y="${p[1]-24}" width="112" height="62" rx="18"/><circle class="dot${i==cur?" sel":""}" data-i="${i}" cx="${p[0]}" cy="${p[1]}" r="12" fill="${c}"><title>${i}: ${f(v)}</title></circle>`}).join("");
+ const key=cur+"|"+mapW;if(key!==pinKey){pinKey=key;$("mp").innerHTML=pinSvg(cur)}
+ document.querySelectorAll("#mg .hit").forEach(e=>e.onclick=()=>pick(e.dataset.i));
  document.querySelectorAll("#per button").forEach((b,i)=>b.className=(i==per?"on ":"")+"");
  $("m1").className=met==1?"on":"";$("m2").className=met==2?"on":""}
-function pick(i){cur=i;$("sel").value=i;draw();const d=D[i].d;
+function relayout(){pinKey="";draw();cur&&centerMap(cur)}
+$("zi").onclick=()=>{if(mz<ZS.length-1){mz++;relayout()}};$("zo").onclick=()=>{if(mz>0){mz--;relayout()}};
+window.addEventListener("resize",()=>{pinKey="";draw()});
+function pick(i){cur=i;$("sel").value=i;draw();centerMap(i);const d=D[i].d;
  const rows=P.map((p,k)=>{const e=d[p];return `<tr class="${k==per?"cur":""}"><td>${p}</td><td>${e?f(e.k):"–"}</td><td>${e&&e.y!=null?f(e.y):"–"}</td><td>${e&&e.mn!=null?f(e.mn):"–"}</td><td>${e&&e.mx!=null?f(e.mx):"–"}</td></tr>`}).join("");
  const e=d[P[per]],kr=e&&e.r?e.r.map(r=>`<tr><td>${r[0]}</td><td>${r[1]}</td><td>${f(r[2])}</td><td>${f(r[3])}</td></tr>`).join(""):"";
  $("det").innerHTML=`<div class="big">${i}</div><div class="w">Dönem dönem kontenjan ve yerleşme sonuçları</div><div class="sw"><table><tr><th>Dönem</th><th>Kontenjan</th><th>Yerleşen</th><th>Taban</th><th>Tavan</th></tr>${rows}</table></div>`+
